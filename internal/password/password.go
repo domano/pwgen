@@ -1,6 +1,12 @@
 // Package password provides types and functions for password generation.
 package password
 
+import (
+	"crypto/rand"
+
+	"github.com/pkg/errors"
+)
+
 // Generator can generate passwords with a given configuration
 // passed via functional Options in its constructor.
 type Generator struct {
