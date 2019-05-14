@@ -99,8 +99,8 @@ func TestPassword(t *testing.T) {
 
 			//then
 			assert.True(t, len(pw) >= tC.minLength, "password was below min length")
-			assert.True(t, countAny(pw, specialChars) >= tC.specialChars, "password did not have enough special chars")
-			assert.True(t, countAny(pw, numbers) >= tC.nums, "password did not have enough numbers")
+			assert.True(t, countAny(pw, specialChars) == tC.specialChars, "password did have wrong number of special chars")
+			assert.True(t, countAny(pw, numbers) == tC.nums, "password did have wrong number of numbers")
 		})
 	}
 }
