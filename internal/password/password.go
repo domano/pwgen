@@ -11,12 +11,15 @@ type Generator struct {
 // generic configration of generators.
 type Option func(*Generator)
 
+// The sets of letters used to generate our passwords
+const letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+const numbers = "0123456789"
+const specialChars = " !\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~"
+
 // NewGenerator will create a Generator which can generate passwords.
 // A number of Options can be passed to configure the resulting Generator.
-// If no MinLength is given, then 16 is the default.
-// If no SpecialChars or Numbers is given, then no limitation will be assumed.
 func NewGenerator(options ...Option) Generator {
-	g := Generator{minLength: 16}
+	g := Generator{}
 	for i := range options {
 		options[i](&g)
 	}
@@ -42,4 +45,9 @@ func Nums(amount int) Option {
 	return func(g *Generator) {
 		g.nums = amount
 	}
+}
+
+// Password generates a password with the generators' configuration
+func (g Generator) Password() string {
+	return ""
 }
