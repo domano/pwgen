@@ -49,5 +49,33 @@ func Nums(amount int) Option {
 
 // Password generates a password with the generators' configuration
 func (g Generator) Password() string {
-	return ""
+	var passwordBytes []byte
+
+	// Create numbers, special chars and letters for the password randomly
+	passwordBytes = append(passwordBytes, randomBytes(numbers, g.nums)...)
+	passwordBytes = append(passwordBytes, randomBytes(specialChars, g.specialChars)...)
+	if g.minLength>len(passwordBytes) {
+		passwordBytes = append(passwordBytes, randomBytes(letters, g.minLength-len(passwordBytes))...)
+	}
+
+	// Shuffle the password
+	var password = make([]byte, len(passwordBytes))
+	for i, v:= range random.Perm(len(passwordBytes)) {
+		password[i] = passwordBytes[v]
+	}
+
+	return string(password)
+}
+
+func randomBytes(from string, length int) []byte {
+	str := make([]byte,length)
+	for i:=0;i<length;i++{
+		str[i] = randomChar(from)
+	}
+	return str
+}
+
+func randomChar(from string) byte {
+	i := random.Intn(len(from))
+	return from[i]
 }
