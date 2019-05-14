@@ -67,6 +67,30 @@ func TestPasswordHandler_ServeHTTP(t *testing.T) {
 			expectedResponse: http.StatusMethodNotAllowed,
 			expectedBody:"",
 		},
+		{
+			desc:        "GET, minlength 1",
+			method:      http.MethodGet,
+			queryParams: map[string]string{paramMinLength:"1"},
+			returnedPasswords:[]string{"o"},
+			expectedResponse: http.StatusOK,
+			expectedBody:"['o']",
+		},
+		{
+			desc:        "GET, numbers 1",
+			method:      http.MethodGet,
+			queryParams: map[string]string{paramNumbers:"1"},
+			returnedPasswords:[]string{"['1']"},
+			expectedResponse: http.StatusOK,
+			expectedBody:"['1']",
+		},
+		{
+			desc:        "GET, specialchars 1",
+			method:      http.MethodGet,
+			queryParams: map[string]string{paramSpecialChars:"1"},
+			returnedPasswords:[]string{"['!']"},
+			expectedResponse: http.StatusOK,
+			expectedBody:"['!']",
+		},
 	}
 	for _, tC := range testCases {
 		t.Run(tC.desc, func(t *testing.T) {
@@ -89,7 +113,7 @@ func TestPasswordHandler_ServeHTTP(t *testing.T) {
 			}
 
 			// expect calls to the password generator
-			passwordCall := mockPassworder.EXPECT().Password()
+			passwordCall := mockPassworder.EXPECT().Password(gomock.Any(),gomock.Any(),gomock.Any())
 			for _,pw := range tC.returnedPasswords {
 				passwordCall.Return(pw)
 			}
