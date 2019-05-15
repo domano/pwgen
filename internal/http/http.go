@@ -4,6 +4,7 @@ package http
 import (
 	"encoding/json"
 	"github.com/pkg/errors"
+	log "github.com/sirupsen/logrus"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -17,11 +18,6 @@ type PasswordHandler struct {
 const paramMinLength = "minLength"
 const paramSpecialChars = "specialChars"
 const paramNumbers = "numbers"
-
-// Passworder provides us with a Password function to generate passwords
-type Passworder interface {
-	Password(minLength, specialChars, numbers int) string
-}
 
 func NewPasswordHandler(p Passworder) *PasswordHandler {
 	return &PasswordHandler{p}
@@ -37,6 +33,7 @@ func (ph *PasswordHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	pw, err := ph.password(r)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
+		log.WithError(err).Warnln("Received a bad request.")
 		return
 	}
 
@@ -44,6 +41,7 @@ func (ph *PasswordHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	body, err := json.Marshal([]string{pw})
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
+		log.WithError(err).Errorln("Error while marshalling json")
 		return
 	}
 
@@ -52,14 +50,17 @@ func (ph *PasswordHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// No Body for HEAD requests
 	if r.Method == http.MethodHead {
 		w.WriteHeader(http.StatusOK)
+		log.Debugln("Answered HEAD request without body")
 		return
 	}
 
 	_, err = w.Write(body)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
+		log.WithError(err).Errorln("Error while writing body")
 		return
 	}
+	log.Debugln("Answered GET request")
 }
 
 func (ph *PasswordHandler) password(r *http.Request) (string, error) {
@@ -94,5 +95,18 @@ func numberFromParams(vals url.Values, name string) (int, error) {
 		return 0, errors.Wrapf(err, "Query Parameter %s was no number, got %s instead", name, val)
 	}
 	return num, nil
-
 }
+
+// Passworder provides us with a Password function to generate passwords
+type Passworder interface {
+	Password(minLength, specialChars, numbers int) string
+}
+
+// PassworderFunc allows us to cast single functions to satisfy the Passworder interface
+type PassworderFunc func(minLength, specialChars, numbers int) string
+
+// Password calls its' own receiver as a function to implement the Passworder interface
+func (p PassworderFunc) Password(minLength, specialChars, numbers int) string {
+	return p(minLength, specialChars, numbers)
+}
+
