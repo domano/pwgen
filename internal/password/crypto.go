@@ -28,4 +28,3 @@ func (c cryptoSource) Int63() int64 {
 	tmpInt = tmpInt & (1<<63 - 1)
 	return int64(tmpInt)
 }
-

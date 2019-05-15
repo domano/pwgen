@@ -21,7 +21,7 @@ type Passworder interface {
 	Password(minLength, specialChars, numbers string) string
 }
 
-func NewPasswordHandler(p Passworder) *PasswordHandler{
+func NewPasswordHandler(p Passworder) *PasswordHandler {
 	return &PasswordHandler{p}
 }
 
