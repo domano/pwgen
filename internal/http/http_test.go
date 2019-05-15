@@ -12,84 +12,92 @@ import (
 
 func TestPasswordHandler_ServeHTTP(t *testing.T) {
 	testCases := []struct {
-		desc        string
-		method      string
-		queryParams map[string]string
+		desc              string
+		method            string
+		queryParams       map[string]string
 		returnedPasswords []string
-		expectedResponse int
-		expectedBody string
+		expectedResponse  int
+		expectedBody      string
 	}{
 		{
-			desc:        "GET, no params",
-			method:      http.MethodGet,
-			queryParams: nil,
-			returnedPasswords:[]string{"one"},
-			expectedResponse: http.StatusOK,
-			expectedBody:"['one']",
+			desc:              "GET, no params",
+			method:            http.MethodGet,
+			queryParams:       nil,
+			returnedPasswords: []string{"one"},
+			expectedResponse:  http.StatusOK,
+			expectedBody:      "['one']",
 		},
 		{
-			desc:        "HEAD, no params",
-			method:      http.MethodGet,
-			queryParams: nil,
-			returnedPasswords:[]string{"one"},
-			expectedResponse: http.StatusOK,
-			expectedBody:"",
+			desc:              "HEAD, no params",
+			method:            http.MethodGet,
+			queryParams:       nil,
+			returnedPasswords: []string{"one"},
+			expectedResponse:  http.StatusOK,
+			expectedBody:      "",
 		},
 		{
-			desc:        "POST, no params",
-			method:      http.MethodPost,
-			queryParams: nil,
-			returnedPasswords:nil,
-			expectedResponse: http.StatusMethodNotAllowed,
-			expectedBody:"",
+			desc:              "POST, no params",
+			method:            http.MethodPost,
+			queryParams:       nil,
+			returnedPasswords: nil,
+			expectedResponse:  http.StatusMethodNotAllowed,
+			expectedBody:      "",
 		},
 		{
-			desc:        "PUT, no params",
-			method:      http.MethodPut,
-			queryParams: nil,
-			returnedPasswords:nil,
-			expectedResponse: http.StatusMethodNotAllowed,
-			expectedBody:"",
+			desc:              "PUT, no params",
+			method:            http.MethodPut,
+			queryParams:       nil,
+			returnedPasswords: nil,
+			expectedResponse:  http.StatusMethodNotAllowed,
+			expectedBody:      "",
 		},
 		{
-			desc:        "DELETE, no params",
-			method:      http.MethodDelete,
-			queryParams: nil,
-			returnedPasswords:nil,
-			expectedResponse: http.StatusMethodNotAllowed,
-			expectedBody:"",
+			desc:              "DELETE, no params",
+			method:            http.MethodDelete,
+			queryParams:       nil,
+			returnedPasswords: nil,
+			expectedResponse:  http.StatusMethodNotAllowed,
+			expectedBody:      "",
 		},
 		{
-			desc:        "PATCH, no params",
-			method:      http.MethodPatch,
-			queryParams: nil,
-			returnedPasswords:nil,
-			expectedResponse: http.StatusMethodNotAllowed,
-			expectedBody:"",
+			desc:              "PATCH, no params",
+			method:            http.MethodPatch,
+			queryParams:       nil,
+			returnedPasswords: nil,
+			expectedResponse:  http.StatusMethodNotAllowed,
+			expectedBody:      "",
 		},
 		{
-			desc:        "GET, minlength 1",
-			method:      http.MethodGet,
-			queryParams: map[string]string{paramMinLength:"1"},
-			returnedPasswords:[]string{"o"},
-			expectedResponse: http.StatusOK,
-			expectedBody:"['o']",
+			desc:              "GET, minlength 1",
+			method:            http.MethodGet,
+			queryParams:       map[string]string{paramMinLength: "1"},
+			returnedPasswords: []string{"o"},
+			expectedResponse:  http.StatusOK,
+			expectedBody:      "['o']",
 		},
 		{
-			desc:        "GET, numbers 1",
-			method:      http.MethodGet,
-			queryParams: map[string]string{paramNumbers:"1"},
-			returnedPasswords:[]string{"['1']"},
-			expectedResponse: http.StatusOK,
-			expectedBody:"['1']",
+			desc:              "GET, numbers 1",
+			method:            http.MethodGet,
+			queryParams:       map[string]string{paramNumbers: "1"},
+			returnedPasswords: []string{"1"},
+			expectedResponse:  http.StatusOK,
+			expectedBody:      "['1']",
 		},
 		{
-			desc:        "GET, specialchars 1",
-			method:      http.MethodGet,
-			queryParams: map[string]string{paramSpecialChars:"1"},
-			returnedPasswords:[]string{"['!']"},
-			expectedResponse: http.StatusOK,
-			expectedBody:"['!']",
+			desc:              "GET, specialchars 1",
+			method:            http.MethodGet,
+			queryParams:       map[string]string{paramSpecialChars: "1"},
+			returnedPasswords: []string{"!"},
+			expectedResponse:  http.StatusOK,
+			expectedBody:      "['!']",
+		},
+		{
+			desc:              "GET, minLength 3, specialchars 1, numbers 1",
+			method:            http.MethodGet,
+			queryParams:       map[string]string{paramMinLength: "1", paramNumbers: "1", paramSpecialChars: "1"},
+			returnedPasswords: []string{"a1!"},
+			expectedResponse:  http.StatusOK,
+			expectedBody:      "['a1!']",
 		},
 	}
 	for _, tC := range testCases {
@@ -113,8 +121,8 @@ func TestPasswordHandler_ServeHTTP(t *testing.T) {
 			}
 
 			// expect calls to the password generator
-			passwordCall := mockPassworder.EXPECT().Password(gomock.Any(),gomock.Any(),gomock.Any())
-			for _,pw := range tC.returnedPasswords {
+			passwordCall := mockPassworder.EXPECT().Password(gomock.Any(), gomock.Any(), gomock.Any())
+			for _, pw := range tC.returnedPasswords {
 				passwordCall.Return(pw)
 			}
 			passwordCall.Times(len(tC.returnedPasswords))
@@ -123,11 +131,11 @@ func TestPasswordHandler_ServeHTTP(t *testing.T) {
 			ph.ServeHTTP(rc, req)
 
 			// then
-			assert.Equal(t,tC.expectedResponse, rc.Code)
-			assert.Equal(t,tC.expectedBody,rc.Body.String())
+			assert.Equal(t, tC.expectedResponse, rc.Code)
+			assert.Equal(t, tC.expectedBody, rc.Body.String())
 			contentLength, err := strconv.Atoi(rc.Header().Get("Content-Length"))
 			assert.NoError(t, err)
-			assert.Equal(t,len(tC.expectedBody), contentLength)
+			assert.Equal(t, len(tC.expectedBody), contentLength)
 		})
 	}
 }
