@@ -40,8 +40,8 @@ func SpecialChars(amount int) Option {
 	}
 }
 
-// Nums configures the exact amount of numbers in generated passwords.
-func Nums(amount int) Option {
+// Numbers configures the exact amount of numbers in generated passwords.
+func Numbers(amount int) Option {
 	return func(g *Generator) {
 		g.nums = amount
 	}

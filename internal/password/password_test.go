@@ -30,12 +30,12 @@ func TestNewGenerator(t *testing.T) {
 		},
 		{
 			desc:     "Generator with nums 3",
-			options:  []Option{Nums(3)},
+			options:  []Option{Numbers(3)},
 			expected: Generator{nums: 3},
 		},
 		{
 			desc:     "Generator with nums 3, special chars 4 & min length 5",
-			options:  []Option{Nums(3), SpecialChars(4), MinLength(5)},
+			options:  []Option{Numbers(3), SpecialChars(4), MinLength(5)},
 			expected: Generator{minLength: 5, nums: 3, specialChars: 4},
 		},
 		{
