@@ -28,7 +28,7 @@ func (_m *MockPassworder) EXPECT() *_MockPassworderRecorder {
 	return _m.recorder
 }
 
-func (_m *MockPassworder) Password(minLength int, specialChars int, numbers int) string {
+func (_m *MockPassworder) Password(minLength string, specialChars string, numbers string) string {
 	ret := _m.ctrl.Call(_m, "Password", minLength, specialChars, numbers)
 	ret0, _ := ret[0].(string)
 	return ret0

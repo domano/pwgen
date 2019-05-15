@@ -12,28 +12,31 @@ import (
 
 func TestPasswordHandler_ServeHTTP(t *testing.T) {
 	testCases := []struct {
-		desc              string
-		method            string
-		queryParams       map[string]string
-		returnedPasswords []string
-		expectedResponse  int
-		expectedBody      string
-	}{
+	desc                  string
+	method                string
+	queryParams           map[string]string
+	returnedPasswords     []string
+	expectedResponse      int
+	expectedBody          string
+	expectedContentLength int
+}{
 		{
 			desc:              "GET, no params",
 			method:            http.MethodGet,
 			queryParams:       nil,
-			returnedPasswords: []string{"one"},
+			returnedPasswords: []string{""},
 			expectedResponse:  http.StatusOK,
-			expectedBody:      "['one']",
+			expectedBody:      "[\"\"]",
+			expectedContentLength: 4,
 		},
 		{
 			desc:              "HEAD, no params",
-			method:            http.MethodGet,
+			method:            http.MethodHead,
 			queryParams:       nil,
-			returnedPasswords: []string{"one"},
+			returnedPasswords: []string{""},
 			expectedResponse:  http.StatusOK,
 			expectedBody:      "",
+			expectedContentLength: 4,
 		},
 		{
 			desc:              "POST, no params",
@@ -73,7 +76,8 @@ func TestPasswordHandler_ServeHTTP(t *testing.T) {
 			queryParams:       map[string]string{paramMinLength: "1"},
 			returnedPasswords: []string{"o"},
 			expectedResponse:  http.StatusOK,
-			expectedBody:      "['o']",
+			expectedBody:      "[\"o\"]",
+			expectedContentLength: 5,
 		},
 		{
 			desc:              "GET, numbers 1",
@@ -81,7 +85,8 @@ func TestPasswordHandler_ServeHTTP(t *testing.T) {
 			queryParams:       map[string]string{paramNumbers: "1"},
 			returnedPasswords: []string{"1"},
 			expectedResponse:  http.StatusOK,
-			expectedBody:      "['1']",
+			expectedBody:      "[\"1\"]",
+			expectedContentLength: 5,
 		},
 		{
 			desc:              "GET, specialchars 1",
@@ -89,7 +94,8 @@ func TestPasswordHandler_ServeHTTP(t *testing.T) {
 			queryParams:       map[string]string{paramSpecialChars: "1"},
 			returnedPasswords: []string{"!"},
 			expectedResponse:  http.StatusOK,
-			expectedBody:      "['!']",
+			expectedBody:      "[\"!\"]",
+			expectedContentLength: 5,
 		},
 		{
 			desc:              "GET, minLength 3, specialchars 1, numbers 1",
@@ -97,7 +103,8 @@ func TestPasswordHandler_ServeHTTP(t *testing.T) {
 			queryParams:       map[string]string{paramMinLength: "1", paramNumbers: "1", paramSpecialChars: "1"},
 			returnedPasswords: []string{"a1!"},
 			expectedResponse:  http.StatusOK,
-			expectedBody:      "['a1!']",
+			expectedBody:      "[\"a1!\"]",
+			expectedContentLength: 7,
 		},
 	}
 	for _, tC := range testCases {
@@ -132,10 +139,10 @@ func TestPasswordHandler_ServeHTTP(t *testing.T) {
 
 			// then
 			assert.Equal(t, tC.expectedResponse, rc.Code)
-			assert.Equal(t, tC.expectedBody, rc.Body.String())
-			contentLength, err := strconv.Atoi(rc.Header().Get("Content-Length"))
-			assert.NoError(t, err)
-			assert.Equal(t, len(tC.expectedBody), contentLength)
+			assert.Contains(t, rc.Body.String(),tC.expectedBody)
+			contentLength, _:= strconv.Atoi(rc.Header().Get("Content-Length"))
+			assert.Equal(t, tC.expectedContentLength, contentLength)
+			assert.Equal(t, len(tC.expectedBody), rc.Body.Len())
 		})
 	}
 }
