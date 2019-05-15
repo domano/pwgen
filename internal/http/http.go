@@ -3,7 +3,9 @@ package http
 
 import (
 	"encoding/json"
+	"github.com/pkg/errors"
 	"net/http"
+	"net/url"
 	"strconv"
 )
 
@@ -18,7 +20,7 @@ const paramNumbers = "numbers"
 
 // Passworder provides us with a Password function to generate passwords
 type Passworder interface {
-	Password(minLength, specialChars, numbers string) string
+	Password(minLength, specialChars, numbers int) string
 }
 
 func NewPasswordHandler(p Passworder) *PasswordHandler {
@@ -32,7 +34,11 @@ func (ph *PasswordHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	pw := ph.password(r)
+	pw, err := ph.password(r)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
 
 	// Write password as json response, implicit 200 if write succeeds
 	body, err := json.Marshal([]string{pw})
@@ -56,12 +62,37 @@ func (ph *PasswordHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (ph *PasswordHandler) password(r *http.Request) string {
-	// Get parameters from URL
+func (ph *PasswordHandler) password(r *http.Request) (string, error) {
+	// Get parameters from URL & validate them
 	params := r.URL.Query()
-	minLength := params.Get(paramMinLength)
-	specialChars := params.Get(paramSpecialChars)
-	numbers := params.Get(paramNumbers)
+
+	minLength, err := numberFromParams(params, paramMinLength)
+	if err != nil {
+		return "", errors.Wrap(err, "Could not read minLength parameter")
+	}
+	specialChars, err := numberFromParams(params, paramSpecialChars)
+	if err != nil {
+		return "", errors.Wrap(err, "Could not read special chars parameter")
+	}
+	numbers, err := numberFromParams(params, paramNumbers)
+	if err != nil {
+		return "", errors.Wrap(err, "Could not read numbers parameter")
+	}
+
 	pw := ph.Password(minLength, specialChars, numbers)
-	return pw
+
+	return pw, nil
+}
+
+func numberFromParams(vals url.Values, name string) (int, error) {
+	val := vals.Get(name)
+	if val == "" {
+		return 0, nil
+	}
+	num, err := strconv.Atoi(val)
+	if err != nil {
+		return 0, errors.Wrapf(err, "Query Parameter %s was no number, got %s instead", name, val)
+	}
+	return num, nil
+
 }
