@@ -1,14 +1,27 @@
 package http
 
 import (
-	"github.com/domano/pwgen/internal/mock"
-	"github.com/golang/mock/gomock"
-	"github.com/stretchr/testify/assert"
 	"net/http"
 	"net/http/httptest"
 	"strconv"
 	"testing"
+
+	"github.com/domano/pwgen/internal/mock"
+	"github.com/golang/mock/gomock"
+	"github.com/pkg/errors"
+	"github.com/stretchr/testify/assert"
 )
+
+func TestNewPasswordHandler(t *testing.T) {
+	// given a Passworder
+	pw := mock.NewMockPassworder(gomock.NewController(t))
+
+	// when
+	ph := NewPasswordHandler(pw)
+
+	// then
+	assert.Equal(t, pw, ph.Passworder)
+}
 
 func TestPasswordHandler_ServeHTTP(t *testing.T) {
 	testCases := []struct {
@@ -149,4 +162,51 @@ func TestPasswordHandler_ServeHTTP(t *testing.T) {
 			assert.Equal(t, len(tC.expectedBody), rc.Body.Len())
 		})
 	}
+}
+
+func TestPasswordHandler_ServeHTTP_Fail_Body_Write(t *testing.T) {
+	// given a mock controller
+	ctrl := gomock.NewController(t)
+
+	// and a mocked password generator
+	mockPassworder := mock.NewMockPassworder(ctrl)
+
+	// and our handler
+	ph := &PasswordHandler{mockPassworder}
+
+	// and a failing responsewrite
+	w := &failWriter{}
+
+	// and a test request
+	req, _ := http.NewRequest(http.MethodGet, "", nil)
+
+	// expect calls to the password generator
+	passwordCall := mockPassworder.EXPECT().Password(gomock.Any(), gomock.Any(), gomock.Any()).Return("")
+	passwordCall.Times(1)
+
+	// when
+	ph.ServeHTTP(w, req)
+
+	// then
+	assert.Equal(t, http.StatusInternalServerError, w.status)
+
+}
+
+type failWriter struct {
+	status int
+}
+
+// Dummy implementation to fulfill the resposnewriter interface
+func (f *failWriter) Header() http.Header {
+	return http.Header{}
+}
+
+// Save the response code for test assertions
+func (f *failWriter) WriteHeader(status int) {
+	f.status = status
+}
+
+// Fail when writing
+func (f *failWriter) Write(_ []byte) (n int, err error) {
+	return 0, errors.New("some error")
 }
