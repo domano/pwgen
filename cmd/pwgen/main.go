@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"github.com/caarlos0/env/v6"
 	handler "github.com/domano/pwgen/internal/http"
 	"github.com/domano/pwgen/internal/password"
 	log "github.com/sirupsen/logrus"
@@ -11,21 +12,19 @@ import (
 	"time"
 )
 
-type Config struct {
-	certFile string
-	keyFile string
-	port int
-	shutdownTimeout time.Duration
+type config struct {
+	CertFile    string        `env:"CERT_FILE" envDefault:"cert.pem"`
+	KeyFile     string        `env:"KEY_FILE" envDefault:"key.unencrypted.pem"`
+	Port        int           `env:"PORT" envDefault:"8443"`
+	GracePeriod time.Duration `env:"GRACE_PERIOD" envDefault:"1s"`
 }
 
-var config Config
+var cfg config
 
 func main() {
-	config = Config{
-		"cert.pem",
-		"key.unencrypted.pem",
-		8443,
-		5*time.Second,
+	cfg=config{}
+	if err := env.Parse(&cfg); err != nil {
+		log.WithError(err).Fatalln("Could not parse configuration.")
 	}
 	run()
 }
@@ -48,7 +47,7 @@ func run() {
 	log.Infoln("pwgen shuts down now.")
 
 	// Trigger Graceful shutdown with 5 second time limit
-	ctx, _ := context.WithTimeout(context.Background(), config.shutdownTimeout)
+	ctx, _ := context.WithTimeout(context.Background(), cfg.GracePeriod)
 	err := server.Shutdown(ctx)
 	if err != nil {
 		log.WithError(err).Fatalln("pwgen failed during graceful shutdown")
@@ -59,7 +58,7 @@ func run() {
 // Starts the server in its own goroutine
 func startServer(server http.Server) {
 	go func() {
-		err := server.ListenAndServeTLS(config.certFile, config.keyFile)
+		err := server.ListenAndServeTLS(cfg.CertFile, cfg.KeyFile)
 		if err != nil {
 			log.WithError(err).Fatal("HTTP Server threw an error, shutting down.")
 		}
