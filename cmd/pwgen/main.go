@@ -5,6 +5,7 @@ import (
 	"github.com/caarlos0/env/v6"
 	handler "github.com/domano/pwgen/internal/http"
 	"github.com/domano/pwgen/internal/password"
+	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 	"net/http"
 	"os"
@@ -22,48 +23,66 @@ type config struct {
 var cfg config
 
 func main() {
-	cfg = config{}
-	if err := env.Parse(&cfg); err != nil {
-		log.WithError(err).Fatalln("Could not parse configuration.")
+	err := parseConfig()
+	if err != nil {
+		log.WithError(err).Fatalln("Could not parse config, shutting down.")
 	}
-	run()
-}
-
-func run() {
-	log.Infoln("Starting pwgen...")
-
 	// Listen for SIGINT to gracefully close the app
 	stop := make(chan os.Signal, 1)
 	signal.Notify(stop, os.Interrupt)
+	err = run(stop)
+	if err != nil {
+		log.WithError(err).Fatalln("Could not start app. Shutting down.")
+	}
+}
+
+func parseConfig() error {
+	cfg = config{}
+	if err := env.Parse(&cfg); err != nil {
+		return errors.Wrap(err, "Failed while reading environment variables: ")
+	}
+	return nil
+}
+
+func run(stop chan os.Signal) error{
+	log.Infoln("Starting pwgen...")
 
 	// Create a new password handler using our single use PasswordAdapter
 	ph := handler.NewPasswordHandler(handler.PassworderFunc(PasswordAdapter))
 
 	server := createServer(ph, "/passwords")
-	startServer(&server)
+	errChan := startServer(&server)
 
-	// Wait for SIGINT
-	<-stop
-	log.Infoln("pwgen shuts down now.")
 
-	// Trigger Graceful shutdown with 5 second time limit
-	ctx, ctxCancel := context.WithTimeout(context.Background(), cfg.GracePeriod)
-	err := server.Shutdown(ctx)
-	if err != nil {
-		ctxCancel()
-		log.WithError(err).Fatalln("pwgen failed during graceful shutdown")
+	// Wait for SIGINT or server error
+	select {
+	case err := <-errChan:
+			return errors.Wrap(err, "Could not start server: ")
+	case <-stop:
+		log.Infoln("pwgen shuts down now.")
+
+		// Trigger Graceful shutdown with 5 second time limit
+		ctx, ctxCancel := context.WithTimeout(context.Background(), cfg.GracePeriod)
+		err := server.Shutdown(ctx)
+		if err != nil {
+			ctxCancel()
+			return errors.Wrap(err,"pwgen failed during graceful shutdown")
+		}
+		log.Infoln("pwgen gracefully shut down.")
+		return nil
 	}
-	log.Infoln("pwgen gracefully shut down.")
 }
 
 // Starts the server in its own goroutine
-func startServer(server *http.Server) {
+func startServer(server *http.Server) <-chan error{
+	errChan := make(chan error,0)
 	go func() {
 		err := server.ListenAndServeTLS(cfg.CertFile, cfg.KeyFile)
 		if err != nil {
-			log.WithError(err).Fatal("HTTP Server threw an error, shutting down.")
+			errChan <-errors.Wrap(err,"HTTP Server threw an error, shutting down: ")
 		}
 	}()
+	return errChan
 }
 
 func createServer(h http.Handler, route string) http.Server {
