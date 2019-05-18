@@ -1,7 +1,7 @@
 language: go
 
 go:
-  - 1.12.4
+  - 1.12.x
 
 os:
   - linux
@@ -9,12 +9,11 @@ os:
 env:
   global:
     - GO111MODULE=on
-    - GOFLAGS='-mod vendor'
 
 
 script:
-  - go build cmd/pwgen/main.go
-  - go test -v -race -coverprofile=coverage.txt -covermode=atomic
+  - go build mod vendor cmd/pwgen/main.go
+  - go test mod vendor -v -race -coverprofile=coverage.txt -covermode=atomic
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)
