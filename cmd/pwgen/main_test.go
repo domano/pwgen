@@ -47,7 +47,7 @@ func Test_parseConfig(t *testing.T) {
 
 	// then
 	assert.NoError(t, err)
-	assert.Equal(t,cfg.GracePeriod,5*time.Second)
+	assert.Equal(t, cfg.GracePeriod, 5*time.Second)
 }
 
 func Test_parseConfig_withError(t *testing.T) {

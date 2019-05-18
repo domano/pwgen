@@ -44,7 +44,7 @@ func parseConfig() error {
 	return nil
 }
 
-func run(stop chan os.Signal) error{
+func run(stop chan os.Signal) error {
 	log.Infoln("Starting pwgen...")
 
 	// Create a new password handler using our single use PasswordAdapter
@@ -53,11 +53,10 @@ func run(stop chan os.Signal) error{
 	server := createServer(ph, "/passwords")
 	errChan := startServer(&server)
 
-
 	// Wait for SIGINT or server error
 	select {
 	case err := <-errChan:
-			return errors.Wrap(err, "Could not start server: ")
+		return errors.Wrap(err, "Could not start server: ")
 	case <-stop:
 		log.Infoln("pwgen shuts down now.")
 
@@ -66,7 +65,7 @@ func run(stop chan os.Signal) error{
 		err := server.Shutdown(ctx)
 		if err != nil {
 			ctxCancel()
-			return errors.Wrap(err,"pwgen failed during graceful shutdown")
+			return errors.Wrap(err, "pwgen failed during graceful shutdown")
 		}
 		log.Infoln("pwgen gracefully shut down.")
 		return nil
@@ -74,12 +73,12 @@ func run(stop chan os.Signal) error{
 }
 
 // Starts the server in its own goroutine
-func startServer(server *http.Server) <-chan error{
-	errChan := make(chan error,0)
+func startServer(server *http.Server) <-chan error {
+	errChan := make(chan error, 0)
 	go func() {
 		err := server.ListenAndServeTLS(cfg.CertFile, cfg.KeyFile)
 		if err != nil {
-			errChan <-errors.Wrap(err,"HTTP Server threw an error, shutting down: ")
+			errChan <- errors.Wrap(err, "HTTP Server threw an error, shutting down: ")
 		}
 	}()
 	return errChan
