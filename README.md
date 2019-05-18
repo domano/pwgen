@@ -6,6 +6,8 @@ Challenge: Create a password generating REST service
 [![Build Status](https://travis-ci.org/domano/pwgen.svg?branch=master)](https://travis-ci.org/domano/pwgen)
 [![GoDoc](https://godoc.org/github.com/domano/pwgen/internal?status.svg)](http://godoc.org/github.com/domano/pwgen/internal)
 [![Go Report Card](https://goreportcard.com/badge/github.com/domano/pwgen)](https://goreportcard.com/report/github.com/domano/pwgen)
+[![codecov](https://codecov.io/gh/domano/pwgen/branch/master/graph/badge.svg)](https://codecov.io/gh/domano/pwgen)
+
 
 
 # API
