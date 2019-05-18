@@ -13,7 +13,7 @@ env:
 
 script:
   - go build -mod=vendor cmd/pwgen/main.go
-  - go test -mod=vendor -v -race -coverprofile=coverage.txt -covermode=atomic
+  - go test -mod=vendor -v -race -coverprofile=coverage.txt -covermode=atomic ./...
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)
