@@ -3,6 +3,7 @@ Challenge: Create a password generating REST service
 
 ![Docker Cloud Automated build](https://img.shields.io/docker/cloud/automated/domano/pwgen.svg)
 ![Docker Cloud Build Status](https://img.shields.io/docker/cloud/build/domano/pwgen.svg)
+[![Build Status](https://travis-ci.org/domano/pwgen.svg?branch=master)](https://travis-ci.org/domano/pwgen)
 
 # API
 
