@@ -14,7 +14,7 @@ func Test_run(t *testing.T) {
 	req, _ := http.NewRequest("GET", "https://localhost:8443/passwords?minLength=10", nil)
 
 	// and a valid test config
-	config = config{
+	cfg = config{
 		"../../cert.pem",
 		"../../key.unencrypted.pem",
 		8443,
