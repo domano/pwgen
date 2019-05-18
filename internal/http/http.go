@@ -10,6 +10,8 @@ import (
 	"strconv"
 )
 
+// PasswordHandler accepts requests for passwords and
+// delivers them with the help of the included Passworder
 type PasswordHandler struct {
 	Passworder
 }
@@ -19,6 +21,7 @@ const paramMinLength = "minLength"
 const paramSpecialChars = "specialChars"
 const paramNumbers = "numbers"
 
+// NewPasswordHandler constructs a new PasswordHandler using the given Passworder
 func NewPasswordHandler(p Passworder) *PasswordHandler {
 	return &PasswordHandler{p}
 }

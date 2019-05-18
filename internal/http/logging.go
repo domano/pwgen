@@ -5,6 +5,8 @@ import (
 	"net/http"
 )
 
+// LoggingHandlerFunc wraps a given
+// http.Handler with a logging middleware
 func LoggingHandlerFunc(next http.Handler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		lw := loggingWriter{w, 200}
