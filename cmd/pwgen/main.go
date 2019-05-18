@@ -16,7 +16,7 @@ type config struct {
 	CertFile    string        `env:"CERT_FILE" envDefault:"cert.pem"`
 	KeyFile     string        `env:"KEY_FILE" envDefault:"key.unencrypted.pem"`
 	Port        int           `env:"PORT" envDefault:"8443"`
-	GracePeriod time.Duration `env:"GRACE_PERIOD" envDefault:"1s"`
+	GracePeriod time.Duration `env:"GRACE_PERIOD" envDefault:"5s"`
 }
 
 var cfg config
