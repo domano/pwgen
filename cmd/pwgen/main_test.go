@@ -18,7 +18,7 @@ func Test_run(t *testing.T) {
 		"../../cert.pem",
 		"../../key.unencrypted.pem",
 		8443,
-		5*time.Second,
+		5 * time.Second,
 	}
 
 	// and our started app

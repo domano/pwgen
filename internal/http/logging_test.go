@@ -11,7 +11,7 @@ import (
 
 func TestLoggingHandlerFunc_Access_Log(t *testing.T) {
 	// given some writer to test our log output
-	rc :=httptest.NewRecorder()
+	rc := httptest.NewRecorder()
 	logBuffer := bytes.NewBufferString("")
 	logrus.SetOutput(logBuffer)
 
@@ -31,13 +31,13 @@ func TestLoggingHandlerFunc_Access_Log(t *testing.T) {
 
 func TestLoggingHandlerFunc_Access_Log_With_Next(t *testing.T) {
 	// given some writer to test our log output
-	rc :=httptest.NewRecorder()
+	rc := httptest.NewRecorder()
 	logBuffer := bytes.NewBufferString("")
 	logrus.SetOutput(logBuffer)
 
 	// and a test handler to check if it was called as next
 	var called bool
-	testHandlerFunc := func (_ http.ResponseWriter, _ *http.Request) {
+	testHandlerFunc := func(_ http.ResponseWriter, _ *http.Request) {
 		called = true
 	}
 	// and a request

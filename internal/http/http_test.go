@@ -170,7 +170,6 @@ func TestPasswordHandler_ServeHTTP(t *testing.T) {
 			}
 			req.URL.RawQuery = query.Encode()
 
-
 			// expect calls to the password generator
 			passwordCall := mockPassworder.EXPECT().Password(gomock.Any(), gomock.Any(), gomock.Any())
 			for _, pw := range tC.returnedPasswords {

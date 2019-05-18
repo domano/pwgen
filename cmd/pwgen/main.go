@@ -22,7 +22,7 @@ type config struct {
 var cfg config
 
 func main() {
-	cfg=config{}
+	cfg = config{}
 	if err := env.Parse(&cfg); err != nil {
 		log.WithError(err).Fatalln("Could not parse configuration.")
 	}

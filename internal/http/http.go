@@ -109,4 +109,3 @@ type PassworderFunc func(minLength, specialChars, numbers int) string
 func (p PassworderFunc) Password(minLength, specialChars, numbers int) string {
 	return p(minLength, specialChars, numbers)
 }
-
