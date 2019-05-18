@@ -20,11 +20,12 @@ There is one endpoint `/passwords` with the following query parameters.
 | minLength | The minimum length of a password.| 0| 
 | specialChars| Minimum amount of special characters. | 0 | 
 | numbers | Minimum amount of numbers. | 0 |
+| amount | Number of passwords that will be returned | 1 |
 
 ### Example:
-Request `/passwords?minLength=10&specialChars=3&numbers=3`
+Request `/passwords?minLength=10&specialChars=3&numbers=3&amount=2`
 
-Response `["?!o\10wE9q"]`
+Response `["?!o\10wE9q", "h3{{v9BB3%"]`
 
  
 ## run

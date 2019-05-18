@@ -20,6 +20,7 @@ type PasswordHandler struct {
 const paramMinLength = "minLength"
 const paramSpecialChars = "specialChars"
 const paramNumbers = "numbers"
+const paramAmount = "amount"
 
 // NewPasswordHandler constructs a new PasswordHandler using the given Passworder
 func NewPasswordHandler(p Passworder) *PasswordHandler {
@@ -33,7 +34,7 @@ func (ph *PasswordHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	pw, err := ph.password(r)
+	pw, err := ph.passwords(r)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		log.WithError(err).Warnln("Received a bad request.")
@@ -41,7 +42,7 @@ func (ph *PasswordHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Write password as json response, implicit 200 if write succeeds
-	body, err := json.Marshal([]string{pw})
+	body, err := json.Marshal(pw)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		log.WithError(err).Errorln("Error while marshalling json")
@@ -66,24 +67,32 @@ func (ph *PasswordHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	log.Debugln("Answered GET request")
 }
 
-func (ph *PasswordHandler) password(r *http.Request) (string, error) {
+func (ph *PasswordHandler) passwords(r *http.Request) ([]string, error) {
 	// Get parameters from URL & validate them
 	params := r.URL.Query()
 
 	minLength, err := numberFromParams(params, paramMinLength)
 	if err != nil {
-		return "", errors.Wrap(err, "Could not read minLength parameter")
+		return nil, errors.Wrap(err, "Could not read minLength parameter")
 	}
 	specialChars, err := numberFromParams(params, paramSpecialChars)
 	if err != nil {
-		return "", errors.Wrap(err, "Could not read special chars parameter")
+		return nil, errors.Wrap(err, "Could not read special chars parameter")
 	}
 	numbers, err := numberFromParams(params, paramNumbers)
 	if err != nil {
-		return "", errors.Wrap(err, "Could not read numbers parameter")
+		return nil, errors.Wrap(err, "Could not read numbers parameter")
+	}
+	amount, err := numberFromParams(params, paramAmount)
+	if err != nil {
+		return nil, errors.Wrap(err, "Could not read numbers parameter")
 	}
 
-	pw := ph.Password(minLength, specialChars, numbers)
+	// Stay backwards compatible
+	if amount == 0 {
+		amount = 1
+	}
+	pw := ph.Passwords(amount, minLength, specialChars, numbers)
 
 	return pw, nil
 }
@@ -102,13 +111,13 @@ func numberFromParams(vals url.Values, name string) (int, error) {
 
 // Passworder provides us with a Password function to generate passwords
 type Passworder interface {
-	Password(minLength, specialChars, numbers int) string
+	Passwords(amount, minLength, specialChars, numbers int) []string
 }
 
 // PassworderFunc allows us to cast single functions to satisfy the Passworder interface
-type PassworderFunc func(minLength, specialChars, numbers int) string
+type PassworderFunc func(amount, minLength, specialChars, numbers int) []string
 
 // Password calls its' own receiver as a function to implement the Passworder interface
-func (p PassworderFunc) Password(minLength, specialChars, numbers int) string {
-	return p(minLength, specialChars, numbers)
+func (p PassworderFunc) Passwords(amount, minLength, specialChars, numbers int) []string {
+	return p(amount, minLength, specialChars, numbers)
 }

@@ -97,11 +97,14 @@ func createServer(h http.Handler, route string) http.Server {
 
 // PasswordAdapter allows us to use a password
 // generator to fulfill the Passworder-interface for our handler
-func PasswordAdapter(minLength, specialChars, numbers int) string {
+func PasswordAdapter(amount, minLength, specialChars, numbers int) (passwords []string) {
 	generator := password.NewGenerator(
 		password.MinLength(minLength),
 		password.SpecialChars(specialChars),
 		password.Numbers(numbers))
 
-	return generator.Password()
+	for i:=0;i<amount ;i++  {
+		passwords = append(passwords, generator.Password())
+	}
+	return passwords
 }
