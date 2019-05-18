@@ -105,7 +105,7 @@ func TestPassword(t *testing.T) {
 	}
 }
 
-// Counts occurences of any char in chars in s
+// Counts occurrences of any char in chars in s
 func countAny(s, chars string) int {
 	var count int
 	for _, c := range chars {
