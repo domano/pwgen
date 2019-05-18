@@ -40,23 +40,24 @@ func run() {
 	ph := handler.NewPasswordHandler(handler.PassworderFunc(PasswordAdapter))
 
 	server := createServer(ph, "/passwords")
-	startServer(server)
+	startServer(&server)
 
 	// Wait for SIGINT
 	<-stop
 	log.Infoln("pwgen shuts down now.")
 
 	// Trigger Graceful shutdown with 5 second time limit
-	ctx, _ := context.WithTimeout(context.Background(), cfg.GracePeriod)
+	ctx, ctxCancel := context.WithTimeout(context.Background(), cfg.GracePeriod)
 	err := server.Shutdown(ctx)
 	if err != nil {
+		ctxCancel()
 		log.WithError(err).Fatalln("pwgen failed during graceful shutdown")
 	}
 	log.Infoln("pwgen gracefully shut down.")
 }
 
 // Starts the server in its own goroutine
-func startServer(server http.Server) {
+func startServer(server *http.Server) {
 	go func() {
 		err := server.ListenAndServeTLS(cfg.CertFile, cfg.KeyFile)
 		if err != nil {
