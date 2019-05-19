@@ -3,11 +3,16 @@ Challenge: Create a password generating REST service
 
 [![Docker Cloud Automated build](https://img.shields.io/docker/cloud/automated/domano/pwgen.svg)](https://cloud.docker.com/repository/docker/domano/pwgen)
 [![Docker Cloud Build Status](https://img.shields.io/docker/cloud/build/domano/pwgen.svg)](https://cloud.docker.com/repository/docker/domano/pwgen)
+![Docker Stars](https://img.shields.io/docker/stars/domano/pwgen.svg)
 [![Build Status](https://travis-ci.org/domano/pwgen.svg?branch=master)](https://travis-ci.org/domano/pwgen)
+
 [![GoDoc](https://godoc.org/github.com/domano/pwgen/internal?status.svg)](http://godoc.org/github.com/domano/pwgen/internal)
 [![Go Report Card](https://goreportcard.com/badge/github.com/domano/pwgen)](https://goreportcard.com/report/github.com/domano/pwgen)
 [![codecov](https://codecov.io/gh/domano/pwgen/branch/master/graph/badge.svg)](https://codecov.io/gh/domano/pwgen)
 
+![GitHub](https://img.shields.io/github/license/domano/pwgen.svg)
+![GitHub tag (latest SemVer)](https://img.shields.io/github/tag/domano/pwgen.svg)
+![GitHub last commit](https://img.shields.io/github/last-commit/domano/pwgen.svg)
 
 
 # API
