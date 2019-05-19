@@ -124,6 +124,24 @@ func TestPasswordHandler_ServeHTTP(t *testing.T) {
 			expectedContentLength: 7,
 		},
 		{
+			desc:                  "GET, minLength 3, specialchars 1, numbers 1, amount 1",
+			method:                http.MethodGet,
+			queryParams:           map[string]string{paramMinLength: "1", paramNumbers: "1", paramSpecialChars: "1"},
+			returnedPasswords:     []string{"a1!"},
+			expectedResponse:      http.StatusOK,
+			expectedBody:          "[\"a1!\"]",
+			expectedContentLength: 7,
+		},
+		{
+			desc:                  "GET, minLength 3, specialchars 1, numbers 1, amount 2",
+			method:                http.MethodGet,
+			queryParams:           map[string]string{paramMinLength: "1", paramNumbers: "1", paramSpecialChars: "1"},
+			returnedPasswords:     []string{"a1!","a1!"},
+			expectedResponse:      http.StatusOK,
+			expectedBody:          "[\"a1!\",\"a1!\"]",
+			expectedContentLength: 13,
+		},
+		{
 			desc:                  "GET, invalid minLength",
 			method:                http.MethodGet,
 			queryParams:           map[string]string{paramMinLength: "asdasd1"},
@@ -143,6 +161,13 @@ func TestPasswordHandler_ServeHTTP(t *testing.T) {
 			desc:                  "GET, invalid numbers",
 			method:                http.MethodGet,
 			queryParams:           map[string]string{paramNumbers: "asdasd1"},
+			expectedResponse:      http.StatusBadRequest,
+			expectedBody:          "",
+			expectedContentLength: 0,
+		},		{
+			desc:                  "GET, invalid amount",
+			method:                http.MethodGet,
+			queryParams:           map[string]string{paramAmount: "asdasd1"},
 			expectedResponse:      http.StatusBadRequest,
 			expectedBody:          "",
 			expectedContentLength: 0,
@@ -171,11 +196,9 @@ func TestPasswordHandler_ServeHTTP(t *testing.T) {
 			req.URL.RawQuery = query.Encode()
 
 			// expect calls to the password generator
-			passwordCall := mockPassworder.EXPECT().Password(gomock.Any(), gomock.Any(), gomock.Any())
-			for _, pw := range tC.returnedPasswords {
-				passwordCall.Return(pw)
-			}
-			passwordCall.Times(len(tC.returnedPasswords))
+			passwordCall := mockPassworder.EXPECT().Passwords(gomock.Any(),gomock.Any(), gomock.Any(), gomock.Any())
+				passwordCall.Return(tC.returnedPasswords)
+			passwordCall.Times(1)
 
 			// when our endpoint is called
 			ph.ServeHTTP(rc, req)
@@ -207,7 +230,7 @@ func TestPasswordHandler_ServeHTTP_Fail_Body_Write(t *testing.T) {
 	req, _ := http.NewRequest(http.MethodGet, "", nil)
 
 	// expect calls to the password generator
-	passwordCall := mockPassworder.EXPECT().Password(gomock.Any(), gomock.Any(), gomock.Any()).Return("")
+	passwordCall := mockPassworder.EXPECT().Passwords(gomock.Any(),gomock.Any(), gomock.Any(), gomock.Any()).Return([]string{""})
 	passwordCall.Times(1)
 
 	// when

@@ -28,12 +28,12 @@ func (_m *MockPassworder) EXPECT() *_MockPassworderRecorder {
 	return _m.recorder
 }
 
-func (_m *MockPassworder) Password(minLength int, specialChars int, numbers int) string {
-	ret := _m.ctrl.Call(_m, "Password", minLength, specialChars, numbers)
-	ret0, _ := ret[0].(string)
+func (_m *MockPassworder) Passwords(amount int, minLength int, specialChars int, numbers int) []string {
+	ret := _m.ctrl.Call(_m, "Passwords", amount, minLength, specialChars, numbers)
+	ret0, _ := ret[0].([]string)
 	return ret0
 }
 
-func (_mr *_MockPassworderRecorder) Password(arg0, arg1, arg2 interface{}) *gomock.Call {
-	return _mr.mock.ctrl.RecordCall(_mr.mock, "Password", arg0, arg1, arg2)
+func (_mr *_MockPassworderRecorder) Passwords(arg0, arg1, arg2, arg3 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "Passwords", arg0, arg1, arg2, arg3)
 }
