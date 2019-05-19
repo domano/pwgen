@@ -9,7 +9,7 @@ import (
 // passed via functional Options in its constructor.
 type Generator struct {
 	minLength, specialChars, nums int
-	swap bool
+	swap                          bool
 }
 
 // Option is the functional option type to allow variadic and
@@ -20,8 +20,7 @@ type Option func(*Generator)
 const letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 const numbers = "0123456789"
 const specialChars = " !\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~"
-const vowels, vowelNums = "aAeEiIoO", "4310"	// Character sets used for the vowel swap feature, uU does not have a number and is therefore missing"
-
+const vowels, vowelNums = "aAeEiIoO", "4310" // Character sets used for the vowel swap feature, uU does not have a number and is therefore missing"
 
 // NewGenerator will create a Generator which can generate passwords.
 // A number of Options can be passed to configure the resulting Generator.
@@ -95,14 +94,13 @@ func (g Generator) shuffle(passwordBytes []byte) []byte {
 	return password
 }
 
-func (g Generator) swapVowel(char byte) byte{
-		index := bytes.IndexByte([]byte(vowels), char)
-		if index > 0 && random.Intn(2) == 1 {
-			return vowelNums[index/2] // map index of vowel to index of vowelNums
-		}
-		return char
+func (g Generator) swapVowel(char byte) byte {
+	index := bytes.IndexByte([]byte(vowels), char)
+	if index > 0 && random.Intn(2) == 1 {
+		return vowelNums[index/2] // map index of vowel to index of vowelNums
+	}
+	return char
 }
-
 
 func randomBytes(from string, length int) []byte {
 	str := make([]byte, length)
