@@ -105,6 +105,28 @@ func TestPassword(t *testing.T) {
 	}
 }
 
+func TestGenerator_Password_WithSwap(t *testing.T) {
+	//given
+	generator := Generator{minLength: 100, specialChars: 0, nums: 0, swap: true}
+
+	//when
+	var pws []string
+	for i := 0; i < 10000; i++ {
+		pws = append(pws, generator.Password())
+	}
+
+	//then we should have some swapped vowels
+	var wasSwapped bool
+	for _, pw := range pws {
+		assert.True(t, len(pw) >= 100, "password was below min length")
+		if strings.ContainsAny(pw, vowelNums) {
+			wasSwapped = true
+			break
+		}
+	}
+	assert.True(t, wasSwapped)
+}
+
 // Counts occurrences of any char in chars in s
 func countAny(s, chars string) int {
 	var count int

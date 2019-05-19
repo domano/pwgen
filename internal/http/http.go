@@ -21,6 +21,7 @@ const paramMinLength = "minLength"
 const paramSpecialChars = "specialChars"
 const paramNumbers = "numbers"
 const paramAmount = "amount"
+const paramSwap = "swap"
 
 // NewPasswordHandler constructs a new PasswordHandler using the given Passworder
 func NewPasswordHandler(p Passworder) *PasswordHandler {
@@ -87,12 +88,15 @@ func (ph *PasswordHandler) passwords(r *http.Request) ([]string, error) {
 	if err != nil {
 		return nil, errors.Wrap(err, "Could not read numbers parameter")
 	}
-
+	swap, err := boolFromParams(params, paramSwap)
+	if err != nil {
+		return nil, errors.Wrap(err, "Could not read swap parameter")
+	}
 	// Stay backwards compatible
 	if amount == 0 {
 		amount = 1
 	}
-	pw := ph.Passwords(amount, minLength, specialChars, numbers)
+	pw := ph.Passwords(amount, minLength, specialChars, numbers, swap)
 
 	return pw, nil
 }
@@ -109,15 +113,27 @@ func numberFromParams(vals url.Values, name string) (int, error) {
 	return num, nil
 }
 
+func boolFromParams(vals url.Values, name string) (bool, error) {
+	val := vals.Get(name)
+	if val == "" {
+		return false, nil
+	}
+	boolean, err := strconv.ParseBool(val)
+	if err != nil {
+		return false, errors.Wrapf(err, "Query Parameter %s was no bool, got %s instead", name, val)
+	}
+	return boolean, nil
+}
+
 // Passworder provides us with a Password function to generate passwords
 type Passworder interface {
-	Passwords(amount, minLength, specialChars, numbers int) []string
+	Passwords(amount, minLength, specialChars, numbers int, swap bool) []string
 }
 
 // PassworderFunc allows us to cast single functions to satisfy the Passworder interface
-type PassworderFunc func(amount, minLength, specialChars, numbers int) []string
+type PassworderFunc func(amount, minLength, specialChars, numbers int, swap bool) []string
 
 // Password calls its' own receiver as a function to implement the Passworder interface
-func (p PassworderFunc) Passwords(amount, minLength, specialChars, numbers int) []string {
-	return p(amount, minLength, specialChars, numbers)
+func (p PassworderFunc) Passwords(amount, minLength, specialChars, numbers int, swap bool) []string {
+	return p(amount, minLength, specialChars, numbers, swap)
 }
