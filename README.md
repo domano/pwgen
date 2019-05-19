@@ -21,6 +21,7 @@ There is one endpoint `/passwords` with the following query parameters.
 | specialChars| Minimum amount of special characters. | 0 | 
 | numbers | Minimum amount of numbers. | 0 |
 | amount | Number of passwords that will be returned | 1 |
+| swap | Boolean value indicating if random vowels should be swapped for numbers | false |
 
 ### Example:
 Request `/passwords?minLength=10&specialChars=3&numbers=3&amount=2`
