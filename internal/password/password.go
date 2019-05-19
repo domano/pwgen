@@ -3,7 +3,6 @@ package password
 
 import (
 	"bytes"
-	"math"
 )
 
 // Generator can generate passwords with a given configuration
@@ -21,7 +20,7 @@ type Option func(*Generator)
 const letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 const numbers = "0123456789"
 const specialChars = " !\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~"
-const vowels, vowelNums = "aAeEiIoO", "4310"
+const vowels, vowelNums = "aAeEiIoO", "4310"	// Character sets used for the vowel swap feature, uU does not have a number and is therefore missing"
 
 
 // NewGenerator will create a Generator which can generate passwords.
@@ -88,7 +87,8 @@ func (g Generator) shuffle(passwordBytes []byte) []byte {
 	var password = make([]byte, len(passwordBytes))
 	for i, v := range random.Perm(len(passwordBytes)) {
 		if g.swap {
-			g.swapVowel(passwordBytes[v])
+			password[i] = g.swapVowel(passwordBytes[v])
+			continue
 		}
 		password[i] = passwordBytes[v]
 	}
@@ -98,8 +98,7 @@ func (g Generator) shuffle(passwordBytes []byte) []byte {
 func (g Generator) swapVowel(char byte) byte{
 		index := bytes.IndexByte([]byte(vowels), char)
 		if index > 0 && random.Intn(2) == 1 {
-			vowelNumIndex := int(math.Ceil(float64(index) / 2.0))
-			return vowelNums[vowelNumIndex]
+			return vowelNums[index/2] // map index of vowel to index of vowelNums
 		}
 		return char
 }

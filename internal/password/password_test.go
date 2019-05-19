@@ -115,12 +115,13 @@ func TestGenerator_Password_WithSwap(t *testing.T) {
 		pws = append(pws, generator.Password())
 	}
 
-	//then
+	//then we should have some swapped vowels
 	var wasSwapped bool
 	for _, pw := range pws {
 		assert.True(t, len(pw) >= 100, "password was below min length")
 		if strings.ContainsAny(pw, vowelNums) {
 			wasSwapped = true
+			break
 		}
 	}
 	assert.True(t, wasSwapped)
