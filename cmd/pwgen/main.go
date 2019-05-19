@@ -5,6 +5,7 @@ import (
 	"github.com/caarlos0/env/v6"
 	handler "github.com/domano/pwgen/internal/http"
 	"github.com/domano/pwgen/internal/password"
+	"github.com/gorilla/handlers"
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 	"net/http"
@@ -92,7 +93,10 @@ func createServer(h http.Handler, route string) http.Server {
 	mux := http.NewServeMux()
 	mux.Handle(route, lh)
 
-	return http.Server{Addr: ":8443", Handler: mux}
+	// Add a recovery handler in case anything unexpected happens
+	rh := handlers.RecoveryHandler(handlers.RecoveryLogger(log.StandardLogger()), handlers.PrintRecoveryStack(true))(mux)
+
+	return http.Server{Addr: ":8443", Handler: rh}
 }
 
 // PasswordAdapter allows us to use a password
@@ -103,7 +107,7 @@ func PasswordAdapter(amount, minLength, specialChars, numbers int) (passwords []
 		password.SpecialChars(specialChars),
 		password.Numbers(numbers))
 
-	for i:=0;i<amount ;i++  {
+	for i := 0; i < amount; i++ {
 		passwords = append(passwords, generator.Password())
 	}
 	return passwords
