@@ -1,4 +1,5 @@
 # env
+
 [![Build Status](https://img.shields.io/travis/caarlos0/env.svg?logo=travis&style=for-the-badge)](https://travis-ci.org/caarlos0/env)
 [![Coverage Status](https://img.shields.io/codecov/c/gh/caarlos0/env.svg?logo=codecov&style=for-the-badge)](https://codecov.io/gh/caarlos0/env)
 [![](http://img.shields.io/badge/godoc-reference-5272B4.svg?style=for-the-badge)](http://godoc.org/github.com/caarlos0/env)
@@ -16,11 +17,11 @@ import (
 	"fmt"
 	"time"
 
-  // if using go modules
-  "github.com/caarlos0/env/v6"
+	// if using go modules
+	"github.com/caarlos0/env/v6"
 
-  // if using dep/others
-  "github.com/caarlos0/env"
+	// if using dep/others
+	"github.com/caarlos0/env"
 )
 
 type config struct {
@@ -129,3 +130,52 @@ type config struct {
     SecretKey    string   `env:"SECRET_KEY,required"`
 }
 ```
+
+
+## From file
+
+The `env` tag option `file` (e.g., `env:"tagKey,file"`) can be added
+to in order to indicate that the value of the variable shall be loaded from a file. The path of that file is given
+by the environment variable associated with it
+Example below
+
+```go
+package main
+
+import (
+	"fmt"
+	"time"
+	"github.com/caarlos0/env"
+)
+
+type config struct {
+	Secret       string   `env:"SECRET,file"`
+	Password     string   `env:"PASSWORD,file" envDefault:"/tmp/password"`
+	Certificate  string   `env:"CERTIFICATE,file" envDefault:"${CERTIFICATE_FILE}" envExpand:"true"`
+}
+
+func main() {
+	cfg := config{}
+	if err := env.Parse(&cfg); err != nil {
+		fmt.Printf("%+v\n", err)
+	}
+
+	fmt.Printf("%+v\n", cfg)
+}
+```
+
+```sh
+$ echo qwerty > /tmp/secret
+$ echo dvorak > /tmp/password
+$ echo coleman > /tmp/certificate
+
+$ SECRET=/tmp/secret  \
+	CERTIFICATE_FILE=/tmp/certificate \
+	go run main.go
+{Secret:qwerty Password:dvorak Certificate:coleman}
+```
+
+## Stargazers over time
+
+[![Stargazers over time](https://starchart.cc/caarlos0/env.svg)](https://starchart.cc/caarlos0/env)
+
