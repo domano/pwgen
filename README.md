@@ -5,6 +5,7 @@ Challenge: Create a password generating REST service
 [![Docker Cloud Build Status](https://img.shields.io/docker/cloud/build/domano/pwgen.svg)](https://cloud.docker.com/repository/docker/domano/pwgen)
 ![Docker Stars](https://img.shields.io/docker/stars/domano/pwgen.svg)
 [![Build Status](https://travis-ci.org/domano/pwgen.svg?branch=master)](https://travis-ci.org/domano/pwgen)
+[![Reviewed by Hound](https://img.shields.io/badge/Reviewed_by-Hound-8E64B0.svg)](https://houndci.com)
 
 [![GoDoc](https://godoc.org/github.com/domano/pwgen/internal?status.svg)](http://godoc.org/github.com/domano/pwgen/internal)
 [![Go Report Card](https://goreportcard.com/badge/github.com/domano/pwgen)](https://goreportcard.com/report/github.com/domano/pwgen)
